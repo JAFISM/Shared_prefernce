@@ -38,7 +38,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
   }
   void check_if_already_login() async {
     logindata = await SharedPreferences.getInstance();
-    newuser = (logindata.getBool('login') ?? true);
+    newuser = (logindata.getBool('newuser') ?? true);
     print(newuser);
 
     if (newuser == false) {
@@ -97,7 +97,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 if (username != '' && password != '') {
                   print('Successfull');
 
-                  logindata.setBool('login', false);
+                  logindata.setBool('newuser', false);
                   logindata.setString('username', username);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => MyDashboard()));
                 }
