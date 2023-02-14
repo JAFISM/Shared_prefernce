@@ -1,45 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_prefernce/page1.dart';
-
+import 'package:shared_prefernce/Registration/registration.dart';
 import 'Color_palette.dart';
+import 'home.dart';
 
 
 void main() => runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: Loginpage(),
     )
 );
 
-class LoginPage extends StatefulWidget {
+class Loginpage extends StatefulWidget {
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<Loginpage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<Loginpage> {
 
   final username_controller = TextEditingController();
   final password_controller = TextEditingController();
 
   late SharedPreferences logindata;
-  late bool newuser;
 
+  late bool newuser;
+  late String uname;
+  late String pswd;
+  late String name;
+
+  @override
+  void initState() {
+    check_if_already_login();
+    getvalue();
+  }
+  void getvalue() async {
+    logindata = await SharedPreferences.getInstance();
+    setState(() {
+      name = logindata.getString('name')!;
+      uname = logindata.getString('username')!;
+      pswd = logindata.getString('password')!;
+    });
+  }
+
+  void check_if_already_login() async {
+    logindata = await SharedPreferences.getInstance();
+    newuser = (logindata.getBool('newuser') ?? true); // null ?? second
+
+    if (newuser == false) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
+    }
+  }
 
   @override
   void dispose() {
+    // Clean up the controller when the widget is disposed.
     username_controller.dispose();
     password_controller.dispose();
     super.dispose();
-  }
-  void check_if_already_login() async {
-    logindata = await SharedPreferences.getInstance();
-    newuser = (logindata.getBool('newuser') ?? true);
-    print(newuser);
-
-    if (newuser == false) {
-      Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => MyDashboard()));
-    }
   }
 
 
@@ -68,9 +87,9 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text("Login", style: TextStyle(color: dark, fontSize: 40),),
+                  Text("Login", style: TextStyle(color: dark, fontSize: 40,fontWeight: FontWeight.bold),),
                   const SizedBox(height: 10,),
-                  Text("Stay Charged!", style: TextStyle(color: dark, fontSize: 18),),
+                  Text("Stay Charged!", style: TextStyle(color: dark, fontSize: 18,fontWeight: FontWeight.bold),),
                 ],
               ),
             ),
@@ -108,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child:  TextField(
                                   controller: username_controller,
                                   decoration: const InputDecoration(
-                                      hintText: "Email or Phone number",
+                                      hintText: "Username",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       border: InputBorder.none
                                   ),
@@ -142,13 +161,18 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: () {
                               String username = username_controller.text;
                               String password = password_controller.text;
-                              if (username != '' && password != '') {
-                                print('Successfull');
 
+                              if (username != '' &&
+                                  password != '' &&
+                                  username == uname &&
+                                  password == pswd) {
+                                print('Successfull');
                                 logindata.setBool('newuser', false);
-                                logindata.setString('username', username);
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => MyDashboard()));
+
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => Home()));
                               }
+
                             },
                             child: Text(
                               "Login",
@@ -168,7 +192,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 50,),
-                        TextButton(onPressed: (){}, child: Text("Don't have an account? Sign UP",style: TextStyle(color: black10),))
+                        TextButton(onPressed: (){
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) =>Registration()));
+                        }, child: Text("Don't have an account? Sign UP",style: TextStyle(color: black10),))
                       ],
                     ),
                   ),
